@@ -13,4 +13,20 @@ db.exec(`
   )
 `)
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY,
+    base_minutes INTEGER NOT NULL DEFAULT 60,
+    conversion_rate REAL NOT NULL DEFAULT 10
+  )
+`)
+
+// insert default settings if not exists
+const existing = db.prepare('SELECT * FROM settings WHERE id = 1').get()
+if (!existing) {
+  db.prepare(`
+    INSERT INTO settings (id, base_minutes, conversion_rate) VALUES (1, 60, 10)
+  `).run()
+}
+
 export default db

@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import verifyRoute from './routes/verify.js'
 import timeRoute from './routes/time.js'
+import settingsRoute from './routes/settings.js'
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.get('/health', (req, res) => {
 
 app.use('/verify', verifyRoute)
 app.use('/time', timeRoute)
+app.use('/settings', settingsRoute)
 
 app.listen(PORT, () => {
   console.log(`Waqt API running on port ${PORT}`)

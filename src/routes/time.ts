@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { getRemaining, addMinutes, deductSeconds } from '../services/timeService.js'
+import { getRemaining, addMinutesFromReading, deductSeconds } from '../services/timeService.js'
 //handle time related routes
 const router = Router()
 
@@ -8,14 +8,14 @@ router.get('/remaining', (req: Request, res: Response) => {
   res.json(getRemaining())
 })
 
-// POST /time/add  body: { minutes: 10 }
+// POST /time/add  body: { minutes: 10 } (reading minutes, not watch minutes)
 router.post('/add', (req: Request, res: Response) => {
   const { minutes } = req.body
   if (!minutes || minutes <= 0) {
     res.status(400).json({ error: 'Invalid minutes' })
     return
   }
-  res.json(addMinutes(minutes))
+  res.json(addMinutesFromReading(minutes))
 })
 
 // POST /time/deduct  body: { seconds: 30 }

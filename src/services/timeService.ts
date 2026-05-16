@@ -4,21 +4,6 @@ function today() {
   return new Date().toISOString().split('T')[0]
 }
 
-function getOrCreateToday() {
-  const date = today()
-  const row = db.prepare('SELECT * FROM time_bank WHERE date = ?').get(date) as any
-
-  if (!row) {
-    db.prepare(`
-      INSERT INTO time_bank (date, base_minutes, earned_minutes, used_minutes)
-      VALUES (?, 60, 0, 0)
-    `).run(date)
-    return db.prepare('SELECT * FROM time_bank WHERE date = ?').get(date) as any
-  }
-
-  return row
-}
-
 export function getRemaining() {
   const row = getOrCreateToday()
   const total = row.base_minutes + row.earned_minutes
@@ -47,4 +32,39 @@ export function deductSeconds(seconds: number) {
     UPDATE time_bank SET used_minutes = used_minutes + ? WHERE date = ?
   `).run(seconds / 60, date)
   return getRemaining()
+}
+
+export function getSettings() {
+  return db.prepare('SELECT * FROM settings WHERE id = 1').get() as any
+}
+
+export function updateSettings(baseMinutes: number, conversionRate: number) {
+  db.prepare(`
+    UPDATE settings SET base_minutes = ?, conversion_rate = ? WHERE id = 1
+  `).run(baseMinutes, conversionRate)
+  return getSettings()
+}
+
+// update getOrCreateToday to use settings base_minutes
+function getOrCreateToday() {
+  const date = today()
+  const row = db.prepare('SELECT * FROM time_bank WHERE date = ?').get(date) as any
+
+  if (!row) {
+    const settings = getSettings()
+    db.prepare(`
+      INSERT INTO time_bank (date, base_minutes, earned_minutes, used_minutes)
+      VALUES (?, ?, 0, 0)
+    `).run(date, settings.base_minutes)
+    return db.prepare('SELECT * FROM time_bank WHERE date = ?').get(date) as any
+  }
+
+  return row
+}
+
+// update addMinutes to use conversion rate
+export function addMinutesFromReading(readingMinutes: number) {
+  const settings = getSettings()
+  const watchMinutes = readingMinutes * settings.conversion_rate
+  return addMinutes(watchMinutes)
 }
