@@ -16,7 +16,7 @@ export function compareAyah(transcribed: string, actual: string): {
   const similarity = stringSimilarity(a, b)
 
   return {
-    match: similarity >= 0.65,
+    match: similarity >= 0.50,
     similarity
   }
 }
