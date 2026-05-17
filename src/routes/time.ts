@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { getRemaining, addMinutesFromReading, deductSeconds } from '../services/timeService.js'
+import db from '../services/db.js'
 //handle time related routes
 const router = Router()
 
@@ -30,6 +31,12 @@ router.post('/deduct', (req: Request, res: Response) => {
     ...result,
     blocked: result.remaining <= 0
   })
+})
+
+router.post('/reset', (req, res) => {
+  const date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+  db.prepare('DELETE FROM time_bank WHERE date = ?').run(date)
+  res.json({ message: 'reset done' })
 })
 
 export default router

@@ -4,7 +4,9 @@ export function compareAyah(transcribed: string, actual: string): {
 } {
   const clean = (text: string) =>
     text
-      .replace(/[\u0610-\u061A\u064B-\u065F]/g, '') // strip tashkeel
+      .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, '') // strip all harakat
+      .replace(/[a-zA-Z]/g, '') // remove English letters
+      .replace(/[^\u0600-\u06FF\s]/g, '') // keep only Arabic characters
       .replace(/\s+/g, ' ')
       .trim()
 

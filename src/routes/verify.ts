@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { getAyah } from '../services/quranService.js'
 import { compareAyah } from '../services/comparisonService.js'
+import { addMinutesFromReading } from '../services/timeService.js'
 
 const router = Router()
 
@@ -30,7 +31,7 @@ router.post('/', async (req: Request, res: Response) => {
 })
 
 router.post('/range', async (req: Request, res: Response) => {
-  const { surah, startAyah, endAyah, transcript } = req.body
+  const { surah, startAyah, endAyah, transcript, speechSeconds } = req.body
 
   if (!surah || !startAyah || !endAyah || !transcript) {
     res.status(400).json({ error: 'Missing fields' })
@@ -38,20 +39,26 @@ router.post('/range', async (req: Request, res: Response) => {
   }
 
   try {
-    // fetch all ayahs in range
     const fetchPromises = []
     for (let i = startAyah; i <= endAyah; i++) {
       fetchPromises.push(getAyah(surah, i))
     }
     const ayahs = await Promise.all(fetchPromises)
     const fullArabic = ayahs.map(a => a.arabic).join(' ')
-
     const result = compareAyah(transcript, fullArabic)
+
+    // use actual speech seconds, not elapsed time
+    let minutesEarned = 0
+    if (result.match && speechSeconds > 0) {
+      minutesEarned = speechSeconds / 60
+      await addMinutesFromReading(minutesEarned)
+    }
 
     res.json({
       match: result.match,
       similarity: result.similarity,
       ayahCount: ayahs.length,
+      minutesEarned,
       transcribed: transcript,
       actual: fullArabic
     })
@@ -59,5 +66,4 @@ router.post('/range', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to verify range' })
   }
 })
-
 export default router

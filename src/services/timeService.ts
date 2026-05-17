@@ -1,7 +1,8 @@
 import db from './db.js'
 
 function today() {
-  return new Date().toISOString().split('T')[0]
+  // force EST/your timezone
+  return new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' })
 }
 
 export function getRemaining() {
