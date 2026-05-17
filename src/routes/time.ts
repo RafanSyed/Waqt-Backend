@@ -36,7 +36,7 @@ router.post('/deduct', (req: Request, res: Response) => {
 router.post('/reset', (req, res) => {
   const date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   db.prepare('DELETE FROM time_bank WHERE date = ?').run(date)
-  res.json({ message: 'reset done' })
+  res.json({ message: 'reset done', date })
 })
 
 export default router
