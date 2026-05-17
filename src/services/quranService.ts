@@ -1,25 +1,61 @@
-interface AyahResponse {
-  surah: number
-  ayah: number
-  arabic: string
-  englishName: string
+interface QuranAyah {
+  number: number
+  text: string
+  numberInSurah: number
+
+  surah: {
+    number: number
+    englishName: string
+    name: string
+  }
 }
 
+interface QuranPageResponse {
+  page: number
 
-export async function getAyah(surah: number, ayah: number): Promise<AyahResponse> {
-  const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${ayah}`)
-  
+  ayahs: QuranAyah[]
+
+  surahs: string[]
+}
+
+export async function getPage(
+  page: number
+): Promise<QuranPageResponse> {
+  const res = await fetch(
+    `https://api.alquran.cloud/v1/page/${page}/quran-simple`
+  )
+
   if (!res.ok) {
-    throw new Error(`Failed to fetch ayah ${surah}:${ayah}`)
+    throw new Error(
+      `Failed to fetch Quran page ${page}`
+    )
   }
 
-  const data = await res.json()
-  const item = data.data
+  const json = await res.json()
+
+  const data = json.data
+
+  // Extract unique surah names
+  const surahSet = new Set<string>()
+
+  data.ayahs.forEach((ayah: QuranAyah) => {
+    surahSet.add(ayah.surah.englishName)
+  })
 
   return {
-    surah,
-    ayah,
-    arabic: item.text,
-    englishName: item.surah.englishName
+    page: data.number,
+
+    ayahs: data.ayahs.map((ayah: QuranAyah) => ({
+      number: ayah.number,
+      text: ayah.text,
+      numberInSurah: ayah.numberInSurah,
+      surah: {
+        number: ayah.surah.number,
+        englishName: ayah.surah.englishName,
+        name: ayah.surah.name
+      }
+    })),
+
+    surahs: Array.from(surahSet)
   }
 }
