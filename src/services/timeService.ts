@@ -42,6 +42,14 @@ export function updateSettings(baseMinutes: number, conversionRate: number) {
   db.prepare(`
     UPDATE settings SET base_minutes = ?, conversion_rate = ? WHERE id = 1
   `).run(baseMinutes, conversionRate)
+
+  // also update today's base minutes immediately
+  const date = today()
+  getOrCreateToday()
+  db.prepare(`
+    UPDATE time_bank SET base_minutes = ? WHERE date = ?
+  `).run(baseMinutes, date)
+
   return getSettings()
 }
 
