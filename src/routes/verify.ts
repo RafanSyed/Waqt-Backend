@@ -44,7 +44,7 @@ router.post('/', async (req: Request, res: Response) => {
      * ~3-6 minutes depending on pace.
      */
 
-    const MIN_SECONDS = 180 // 3 mins
+    const MIN_SECONDS = 50 // 3 mins
     const MAX_SECONDS = 480 // 8 mins
 
     const validTime =
