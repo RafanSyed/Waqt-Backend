@@ -45,7 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
      */
 
     const MIN_SECONDS = 50 // 3 mins
-    const MAX_SECONDS = 480 // 8 mins
+    const MAX_SECONDS = 320 // 8 mins
 
     const validTime =
       speechSeconds >= MIN_SECONDS &&
