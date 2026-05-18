@@ -2,10 +2,11 @@ import { Router, Request, Response } from 'express'
 import { getPage } from '../services/quranService.js'
 import { compareTranscript } from '../services/comparisonService.js'
 import { addMinutesFromReading } from '../services/timeService.js'
+import { verifyApiKey } from './verifyApiKey.js'
 
 const router = Router()
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', verifyApiKey, async (req: Request, res: Response) => {
   const { page, transcript, speechSeconds } = req.body
 
   if (
